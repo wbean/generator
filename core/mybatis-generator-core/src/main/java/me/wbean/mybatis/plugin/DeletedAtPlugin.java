@@ -42,7 +42,7 @@ public class DeletedAtPlugin extends PluginAdapter {
     private static final String DEFAULT = "deletedAt";
 
 
-    private static final Pattern timePattern = Pattern.compile("\\bupdated_at(,?)|\\bcreated_at(,?)|#\\{createdAt,jdbcType=TIMESTAMP\\}(,?)|#\\{updatedAt,jdbcType=TIMESTAMP\\}(,?)");
+    private static final Pattern timePattern = Pattern.compile("\\gmt_create(,?)|\\gmt_modified(,?)|#\\{gmtCreate,jdbcType=TIMESTAMP\\}(,?)|#\\{gmtModified,jdbcType=TIMESTAMP\\}(,?)");
 
 
     @Override
@@ -67,16 +67,6 @@ public class DeletedAtPlugin extends PluginAdapter {
         return true;
     }
 
-    public boolean modelFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable, ModelClassType modelClassType) {
-        if(topLevelClass.getType().getFullyQualifiedName().equals("com.fordeal.center.trade.dao.entity.AddressEntity")){
-            topLevelClass.addImportedType("com.alibaba.fastjson.annotation.JSONField");
-            if(field.getType().getShortName().equals("Date")){
-                field.addAnnotation("@JSONField(format=\"yyyy-MM-dd HH:mm:ss\")");
-            }
-        }
-        return true;
-    }
-
     public boolean modelGetterMethodGenerated(Method method, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable, ModelClassType modelClassType) {
         return false;
     }
@@ -85,45 +75,45 @@ public class DeletedAtPlugin extends PluginAdapter {
         return false;
     }
 
-    // 查询条件添加is_delete is NULL
-    @Override
-    public boolean sqlMapExampleWhereClauseElementGenerated(XmlElement element, IntrospectedTable introspectedTable) {
-        String column = this.getKey(introspectedTable);
-        for (VisitableElement child : element.getElements()) {
-            if (child instanceof XmlElement && ((XmlElement) child).getName().equals("where")) {
-                TextElement element1 = new TextElement("and "+column+" is NULL");
-                ((XmlElement) child).getElements().add(element1);
-                break;
-            }
-        }
-        return true;
-    }
-
-    // 查询条件添加is_delete is NULL
-    @Override
-    public boolean sqlMapSelectByPrimaryKeyElementGenerated(XmlElement element, IntrospectedTable introspectedTable) {
-        String column = this.getKey(introspectedTable);
-        TextElement element1 = new TextElement("and "+column+" is NULL");
-        element.getElements().add(element1);
-        return true;
-    }
-
-    // 标记删除
-    @Override
-    public boolean sqlMapDeleteByPrimaryKeyElementGenerated(XmlElement element, IntrospectedTable introspectedTable) {
-        String column = this.getKey(introspectedTable);
-        element.setName("update");
-        List<VisitableElement> elements = element.getElements();
-        for (int i = 0; i < elements.size(); i++) {
-            if (elements.get(i) instanceof TextElement) {
-                TextElement e = (TextElement) elements.get(i);
-                if (e.getContent().startsWith("delete from")) {
-                    elements.set(i, new TextElement("update " + introspectedTable.getTableConfiguration().getTableName() + " set " + column + " = now()"));
-                }
-            }
-        }
-        return true;
-    }
+//    // 查询条件添加is_delete is NULL
+//    @Override
+//    public boolean sqlMapExampleWhereClauseElementGenerated(XmlElement element, IntrospectedTable introspectedTable) {
+//        String column = this.getKey(introspectedTable);
+//        for (VisitableElement child : element.getElements()) {
+//            if (child instanceof XmlElement && ((XmlElement) child).getName().equals("where")) {
+//                TextElement element1 = new TextElement("and "+column+" is NULL");
+//                ((XmlElement) child).getElements().add(element1);
+//                break;
+//            }
+//        }
+//        return true;
+//    }
+//
+//    // 查询条件添加is_delete is NULL
+//    @Override
+//    public boolean sqlMapSelectByPrimaryKeyElementGenerated(XmlElement element, IntrospectedTable introspectedTable) {
+//        String column = this.getKey(introspectedTable);
+//        TextElement element1 = new TextElement("and "+column+" is NULL");
+//        element.getElements().add(element1);
+//        return true;
+//    }
+//
+//    // 标记删除
+//    @Override
+//    public boolean sqlMapDeleteByPrimaryKeyElementGenerated(XmlElement element, IntrospectedTable introspectedTable) {
+//        String column = this.getKey(introspectedTable);
+//        element.setName("update");
+//        List<VisitableElement> elements = element.getElements();
+//        for (int i = 0; i < elements.size(); i++) {
+//            if (elements.get(i) instanceof TextElement) {
+//                TextElement e = (TextElement) elements.get(i);
+//                if (e.getContent().startsWith("delete from")) {
+//                    elements.set(i, new TextElement("update " + introspectedTable.getTableConfiguration().getTableName() + " set " + column + " = now()"));
+//                }
+//            }
+//        }
+//        return true;
+//    }
 
     // 去掉insert方法中的created_at, updated_at字段, 采用数据库生成
     public boolean sqlMapInsertElementGenerated(XmlElement element, IntrospectedTable introspectedTable) {
@@ -194,7 +184,7 @@ public class DeletedAtPlugin extends PluginAdapter {
                 List<Attribute> attributes = ((XmlElement) next).getAttributes();
                 if(attributes.size() > 0){
                     String value = attributes.get(0).getValue();
-                    if(value != null && (value.startsWith("createdAt") || value.startsWith("updatedAt"))){
+                    if(value != null && (value.startsWith("gmtCreate") || value.startsWith("gmtModified"))){
                         iterator.remove();
                     }else {
                         deepSearchAndRemove((XmlElement) next);
