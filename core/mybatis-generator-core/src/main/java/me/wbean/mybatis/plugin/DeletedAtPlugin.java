@@ -1,5 +1,5 @@
 /**
- *    Copyright 2006-2021 the original author or authors.
+ *    Copyright 2006-2022 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -42,7 +42,7 @@ public class DeletedAtPlugin extends PluginAdapter {
     private static final String DEFAULT = "deletedAt";
 
 
-    private static final Pattern timePattern = Pattern.compile("\\gmt_create(,?)|\\gmt_modified(,?)|#\\{gmtCreate,jdbcType=TIMESTAMP\\}(,?)|#\\{gmtModified,jdbcType=TIMESTAMP\\}(,?)");
+    private static final Pattern timePattern = Pattern.compile("\\bgmt_create(,?)|\\bgmt_modified(,?)|#\\{gmtCreate,jdbcType=TIMESTAMP\\}(,?)|#\\{gmtModified,jdbcType=TIMESTAMP\\}(,?)");
 
 
     @Override
@@ -153,15 +153,15 @@ public class DeletedAtPlugin extends PluginAdapter {
         return true;
     }
 
-    // 去掉updateByPrimaryKey的实现
-    public boolean sqlMapUpdateByPrimaryKeyWithBLOBsElementGenerated(XmlElement element, IntrospectedTable introspectedTable) {
-        return false;
-    }
-
-    // 去掉updateByPrimaryKey的实现
-    public boolean sqlMapUpdateByPrimaryKeyWithoutBLOBsElementGenerated(XmlElement element, IntrospectedTable introspectedTable) {
-        return false;
-    }
+//    // 去掉updateByPrimaryKey的实现
+//    public boolean sqlMapUpdateByPrimaryKeyWithBLOBsElementGenerated(XmlElement element, IntrospectedTable introspectedTable) {
+//        return false;
+//    }
+//
+//    // 去掉updateByPrimaryKey的实现
+//    public boolean sqlMapUpdateByPrimaryKeyWithoutBLOBsElementGenerated(XmlElement element, IntrospectedTable introspectedTable) {
+//        return false;
+//    }
 
     private String getKey(IntrospectedTable introspectedTable){
         String markDeleteKey = introspectedTable.getTableConfigurationProperty(KEY);
