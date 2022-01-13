@@ -124,6 +124,7 @@ public class DeletedAtPlugin extends PluginAdapter {
                 Matcher matcher = timePattern.matcher(e.getContent());
                 if(matcher.find()){
                     String newContent = matcher.replaceAll("");
+                    newContent = newContent.replaceAll(",\\s*\\)", ")");
                     elements.set(i, new TextElement(newContent));
                 }
             }
